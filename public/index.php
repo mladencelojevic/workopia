@@ -1,12 +1,17 @@
 <?php
 require_once "../helpers.php";
+require_once basePath('Router.php');
+require_once basePath('Database.php');
 
-
-require_once basePath('Router.php'); // contains array of routes and condition
+// Instantiating Router
 $router = new Router();
+
+// Get routes
 $routes = require_once basePath('routes.php');
-$uri = $_SERVER['REQUEST_URI'];
+
+// Get current URI and HTTP method
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); // /listings?id=2 when we type this in the url, it will say it cannot find that route, but with parse_url, it will ignore the query part (?id=2) and just take /listings as the correct path. 
 $method = $_SERVER['REQUEST_METHOD']; // GET OR POST
 
-
+// Route the request
 $router->route($uri, $method);

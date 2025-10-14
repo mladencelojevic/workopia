@@ -7,9 +7,9 @@ function basePath(string $path = ''): string
 
 // load view
 
-function loadView($name)
+function loadView($name, $data = [])
 {
-
+    extract($data);
     require_once basePath("views/{$name}.view.php");
 }
 
