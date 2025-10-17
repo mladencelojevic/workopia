@@ -1,7 +1,10 @@
 <?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once "../helpers.php";
-require_once basePath('Router.php');
-require_once basePath('Database.php');
+
+
+use Framework\Router;
 
 // Instantiating Router
 $router = new Router();

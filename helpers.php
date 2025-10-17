@@ -10,7 +10,7 @@ function basePath(string $path = ''): string
 function loadView($name, $data = [])
 {
     extract($data);
-    require_once basePath("views/{$name}.view.php");
+    require_once basePath("App/views/{$name}.view.php");
 }
 
 
@@ -18,7 +18,7 @@ function loadPartial($name)
 {
 
 
-    require_once basePath("views/partials/{$name}.php");
+    require_once basePath("App/views/partials/{$name}.php");
 }
 
 function inspectAndDie($value)

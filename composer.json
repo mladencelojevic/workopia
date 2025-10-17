@@ -1,0 +1,17 @@
+{
+    "name": "mladencelojevic/workopia",
+    "description": "Job listing app",
+    "autoload": {
+        "psr-4": {
+            "Framework\\": "Framework/",
+            "App\\": "App/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mladen Celojevic",
+            "email": "mladencmm@gmail.com"
+        }
+    ],
+    "require": {}
+}

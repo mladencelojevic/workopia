@@ -1,11 +1,12 @@
 <?php
 
-declare(strict_types=1);
+namespace Framework;
+
 
 class Router
 {
 
-    protected array $routes = [];
+    protected $routes = [];
 
 
     public function registerRoute($method, $uri, $controller)
@@ -51,7 +52,7 @@ class Router
             if ($route['uri'] === $uri && $route['method'] === $method) {
 
 
-                require_once basePath($route['controller']);
+                require_once basePath('App/' . $route['controller']);
                 return;
             }
         }
