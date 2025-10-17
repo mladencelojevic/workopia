@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use App\Controllers\ErrorController; // because we used ErrorController::notFound(); down below.
 
 class Router
 {
@@ -9,19 +10,18 @@ class Router
     protected $routes = [];
 
 
-    public function registerRoute($method, $uri, $controller)
+    public function registerRoute($httpMethod, $uri, $action)
     {
-        // routes[] = [] - this adds another element to the existing array. routes = [] - this just overwrittes.
+        list($controller, $controllerMethod) = explode('@', $action);
+
         $this->routes[] = [
-
-            'method' => $method,
+            'httpMethod' => $httpMethod,  // HTTP verb
             'uri' => $uri,
-            'controller' => $controller
-
-
-
+            'controller' => $controller,
+            'controllerMethod' => $controllerMethod // method inside controller
         ];
     }
+
 
 
 
@@ -43,23 +43,23 @@ class Router
         $this->registerRoute('DELETE', $uri, $controller);
     }
 
-
     public function route($uri, $method)
     {
-
         foreach ($this->routes as $route) {
 
-            if ($route['uri'] === $uri && $route['method'] === $method) {
+            if ($route['uri'] === $uri && $route['httpMethod'] === $method) {
 
+                $controllerClass = 'App\\Controllers\\' . $route['controller'];
+                $controllerMethod = $route['controllerMethod'];
 
-                require_once basePath('App/' . $route['controller']);
-                return;
+                $controllerInstance = new $controllerClass();
+                $controllerInstance->$controllerMethod();
+
+                return; // as soon as url matches, if condition is run and this whole function stops right here where we have the 'return' keyword. If we don't have a match in the 'if' statement, foreach is not even triggered and we don't go inside where the 'return' statement is, so, code will naturally go into the next line which is error printing.
             }
         }
 
 
-        http_response_code(404);
-        loadView('error/404');
-        exit;
+        ErrorController::notFound();
     }
 }
