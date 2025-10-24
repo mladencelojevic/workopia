@@ -35,3 +35,16 @@ function inspect($value)
     var_dump($value);
     echo '</pre>';
 }
+
+function sanitize($dirty)
+{
+    return filter_var(trim($dirty), FILTER_SANITIZE_SPECIAL_CHARS); // cleans up special characters, like <, >, ", ', & that can be injected in a form as a code.
+}
+
+
+function redirect($url)
+{
+
+    header("Location: {$url}");
+    exit;
+}

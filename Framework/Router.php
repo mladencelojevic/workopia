@@ -7,55 +7,91 @@ use App\Controllers\ErrorController; // because we used ErrorController::notFoun
 class Router
 {
 
-    protected $routes = [];
+    public $routes = [];
 
 
-    public function registerRoute($httpMethod, $uri, $action)
-    {
-        list($controller, $controllerMethod) = explode('@', $action);
-
-        $this->routes[] = [
-            'httpMethod' => $httpMethod,  // HTTP verb
-            'uri' => $uri,
-            'controller' => $controller,
-            'controllerMethod' => $controllerMethod // method inside controller
-        ];
-    }
-
-
-
-
-
-    public function get(string $uri, string $controller)
+    public function get($uri, $controller)
     {
         $this->registerRoute('GET', $uri, $controller);
     }
-    public function post(string $uri, string $controller)
+    public function post($uri,  $controller)
     {
         $this->registerRoute('POST', $uri, $controller);
     }
-    public function put(string $uri, string $controller)
+    public function put($uri, $controller)
     {
         $this->registerRoute('PUT', $uri, $controller);
     }
-    public function delete(string $uri, string $controller)
+    public function delete($uri,  $controller)
     {
         $this->registerRoute('DELETE', $uri, $controller);
     }
 
-    public function route($uri, $method)
+    public function registerRoute($httpMethod, $uri, $action)
     {
+        list($controller, $controllerMethod) = explode('@', $action); // example: [ListingController, create]
+
+        $this->routes[] = [
+            'httpMethod' => $httpMethod,  // GET / POST / DELETE / PUT
+            'uri' => $uri, // /listings/create
+            'controller' => $controller, // ControllerClasses
+            'controllerMethod' => $controllerMethod // method inside controller
+        ];
+    }
+    public function dispatch($uri)
+    {
+
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+        if ($requestMethod === 'POST' && isset($_POST['_method'])) {
+
+            // Override the request method with the value of _method
+            $requestMethod = strtoupper($_POST['_method']); // DELETE, because the value attribute of the hidden input is 'DELETE'.
+
+
+        }
+
+
+
+
+        $uriSegments = explode('/', trim($uri, '/'));
+
         foreach ($this->routes as $route) {
 
-            if ($route['uri'] === $uri && $route['httpMethod'] === $method) {
+            $routeSegments = explode('/', trim($route['uri'], '/'));
+            $match = false;
 
-                $controllerClass = 'App\\Controllers\\' . $route['controller'];
-                $controllerMethod = $route['controllerMethod'];
 
-                $controllerInstance = new $controllerClass();
-                $controllerInstance->$controllerMethod();
+            if (count($uriSegments) === count($routeSegments) && strtoupper($route['httpMethod']) === $requestMethod) {
+                $params = [];
+                $match = true;
 
-                return; // as soon as url matches, if condition is run and this whole function stops right here where we have the 'return' keyword. If we don't have a match in the 'if' statement, foreach is not even triggered and we don't go inside where the 'return' statement is, so, code will naturally go into the next line which is error printing.
+
+                for ($i = 0; $i < count($uriSegments); $i++) {
+
+
+                    if ($routeSegments[$i] !== $uriSegments[$i] && !preg_match('/\{(.+?)\}/', $routeSegments[$i])) {
+                        $match = false;
+                        break;
+                    }
+
+
+                    if (preg_match('/\{(.+?)\}/', $routeSegments[$i], $matches)) {
+                        $params[$matches[1]] = $uriSegments[$i];
+                    }
+                }
+
+
+                if ($match) {
+                    $controllerClass = 'App\\Controllers\\' . $route['controller'];
+
+                    $controllerMethod = $route['controllerMethod'];
+
+                    $controllerInstance = new $controllerClass();
+                    $controllerInstance->$controllerMethod($params);
+
+                    return;
+                }
             }
         }
 

@@ -1,20 +1,22 @@
 <?php
-
+session_start();
+require_once __DIR__ . "/../helpers.php";
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once "../helpers.php";
-
 
 use Framework\Router;
 
-// Instantiating Router
 $router = new Router();
 
-// Get routes
-$routes = require_once basePath('routes.php');
+$router->get('/', 'HomeController@index');
+$router->get('/listings', 'ListingController@index');
+$router->get('/listings/create', 'ListingController@create');
+$router->get('/listings/edit/{id}', 'ListingController@edit'); // just showing edit form
 
-// Get current URI and HTTP method
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); // /listings?id=2 when we type this in the url, it will say it cannot find that route, but with parse_url, it will ignore the query part (?id=2) and just take /listings as the correct path. 
-$method = $_SERVER['REQUEST_METHOD']; // GET OR POST
 
-// Route the request
-$router->route($uri, $method);
+$router->post('/listings', 'ListingController@store');
+$router->put('/listings/{id}', 'ListingController@update'); // when we submit the form.
+$router->get('/listings/{id}', 'ListingController@show');
+$router->delete('/listings/{id}', 'ListingController@destroy');
+
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); // /listings/2
+$router->dispatch($uri);
