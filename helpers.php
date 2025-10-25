@@ -14,11 +14,11 @@ function loadView($name, $data = [])
 }
 
 
-function loadPartial($name)
+function loadPartial($name, $data = [])
 {
 
-
-    require_once basePath("App/views/partials/{$name}.php");
+    extract($data);
+    require_once basePath("App/views/partials/{$name}.php"); // $data can be used in this view.
 }
 
 function inspectAndDie($value)

@@ -14,7 +14,7 @@ loadPartial('top-banner');
             <h2 class="text-2xl font-bold mb-6 text-center text-gray-500">
                 Job Info
             </h2>
-
+            <?= loadPartial('errors', ['errors' => $errors ?? []]); ?>
             <div class="mb-4">
                 <input
                     type="text"
