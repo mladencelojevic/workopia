@@ -3,6 +3,7 @@
 namespace Framework;
 
 use App\Controllers\ErrorController; // because we used ErrorController::notFound(); down below.
+use Framework\Middleware\Authorize;
 
 class Router
 {
@@ -10,32 +11,34 @@ class Router
     public $routes = [];
 
 
-    public function get($uri, $controller)
+    public function get($uri, $controller, $middleware = [])
     {
-        $this->registerRoute('GET', $uri, $controller);
+        $this->registerRoute('GET', $uri, $controller, $middleware);
     }
-    public function post($uri,  $controller)
+    public function post($uri,  $controller, $middleware = [])
     {
-        $this->registerRoute('POST', $uri, $controller);
+        $this->registerRoute('POST', $uri, $controller, $middleware);
     }
-    public function put($uri, $controller)
+    public function put($uri, $controller, $middleware = [])
     {
-        $this->registerRoute('PUT', $uri, $controller);
+        $this->registerRoute('PUT', $uri, $controller, $middleware);
     }
-    public function delete($uri,  $controller)
+    public function delete($uri,  $controller, $middleware = [])
     {
-        $this->registerRoute('DELETE', $uri, $controller);
+        $this->registerRoute('DELETE', $uri, $controller, $middleware);
     }
 
-    public function registerRoute($httpMethod, $uri, $action)
+    public function registerRoute($httpMethod, $uri, $action, $middleware = [])
     {
-        list($controller, $controllerMethod) = explode('@', $action); // example: [ListingController, create]
+        list($controller, $controllerMethod) = explode('@', $action);
 
         $this->routes[] = [
-            'httpMethod' => $httpMethod,  // GET / POST / DELETE / PUT
-            'uri' => $uri, // /listings/create
-            'controller' => $controller, // ControllerClasses
-            'controllerMethod' => $controllerMethod // method inside controller
+            'httpMethod' => $httpMethod,
+            'uri' => $uri,
+            'controller' => $controller,
+            'controllerMethod' => $controllerMethod,
+            'middleware' => $middleware
+
         ];
     }
     public function dispatch($uri)
@@ -83,6 +86,10 @@ class Router
 
 
                 if ($match) {
+
+                    foreach ($route['middleware'] as $middleware) {
+                        (new Authorize())->handle($middleware);
+                    }
                     $controllerClass = 'App\\Controllers\\' . $route['controller'];
 
                     $controllerMethod = $route['controllerMethod'];
